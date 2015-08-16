@@ -4,20 +4,19 @@ output:
   html_document:
     keep_md: true
 ---
-```{r setup, echo = FALSE}
-hook_plot = knit_hooks$get('plot')
-knit_hooks$set(plot = function(x, options) paste('\n', hook_plot(x, options), sep = ''))
-```
+
 
 ## Loading and preprocessing the data
-```{r}
+
+```r
 # The zip file was downloaded and placed in working directory.
 datafile <- unzip("activity.zip")  # Unzip file
 rawdata <- read.csv(datafile)  # Read data into data frame
 ```
 
 ## What is mean total number of steps taken per day?
-```{r}
+
+```r
 # Create new data frame for total steps per day
 dailysteps <- data.frame(NA, levels(rawdata$date))
 colnames(dailysteps) <- c("steps", "date")
@@ -28,16 +27,22 @@ for (i in levels(rawdata$date)) {  # Cycle through the various dates
 
 # Draw histogram
 hist(dailysteps$steps, main = "Total steps per day", xlab = "Steps per day")
+```
 
+
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2-1.png) 
+
+```r
 meandailysteps <- mean(dailysteps$steps, na.rm = TRUE)  # Calculate mean
 mediandailysteps <- median(dailysteps$steps, na.rm = TRUE)  # Calculate median
 ```
 The mean number of total steps taken per day are: 
-    `r as.integer(meandailysteps)`.  
-The median number of total steps taken per day are: `r mediandailysteps`.
+    10766.  
+The median number of total steps taken per day are: 10765.
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 # Create new data frame for total steps per time interval
 intervalsteps <- data.frame(NA, unique(rawdata$interval))
 colnames(intervalsteps) <- c("steps", "interval")
@@ -51,22 +56,29 @@ for (i in unique(rawdata$interval)) {  # Cycle through the various intervals
 plot(intervalsteps$interval, intervalsteps$steps, xlab = "5-minute interval",
     ylab = "Average number of steps", type = "l")
 title(main = "Average steps per interval of time")
+```
 
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
+```r
 # Find interval containing maximum average steps
 maxsteps <- max(intervalsteps$steps)  # Find maximum average steps
 # Find corresponding interval
 intervalofmaxsteps <- intervalsteps$interval[intervalsteps$steps == maxsteps]
 ```
 The 5-minute interval containing the max number of steps is: 
-    `r intervalofmaxsteps`.
+    835.
 
 ## Imputing missing values
-```{r}
+
+```r
 missingcount <- sum(is.na(rawdata))
 ```
-The total number of missing values is: `r missingcount`.
+The total number of missing values is: 2304.
 
-```{r}
+
+```r
 # Fill in missing values with the mean number of steps for that time interval.
 newdata <- rawdata  # Create new data frame
 for (i in which(is.na(newdata))) {  # Cycle through indices of NA values
@@ -84,17 +96,23 @@ for (i in levels(newdata$date)) {  # Cycle through the various dates
 
 # Draw histogram
 hist(newsteps$steps, main = "Total steps per day", xlab = "Steps per day")
+```
 
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png) 
+
+```r
 newmeansteps <- mean(newsteps$steps)  # Calculate mean
 newmediansteps <- median(newsteps$steps)  # Calculate median
 ```
 The new mean number of total steps taken per day are: 
-    `r as.integer(newmeansteps)`.  
+    10766.  
 The new median number of total steps taken per day are:
-    `r as.integer(newmediansteps)`.
+    10766.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Add new column to original data frame for Weekday vs Weekend
 rawdata$weekday <- ifelse(
     weekdays(as.Date(rawdata$date, format = "%Y-%m-%d")) == "Sunday" | 
@@ -127,5 +145,8 @@ xyplot(weekdayintsteps$steps ~ weekdayintsteps$interval |
     weekdayintsteps$weekday, main = "", type = "l", layout = c(1,2),
     ylab = "Number of steps", xlab = "Interval")
 ```
+
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
   
 It can be seen that there is more activity throughout the day during weekends.
